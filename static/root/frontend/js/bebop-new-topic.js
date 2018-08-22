@@ -43,6 +43,7 @@ var BebopNewTopic = Vue.component("bebop-new-topic", {
 
   methods: {
     postTopic: function() {
+      var categoryId = parseInt(this.$route.params.category, 10);
       var title = $("#topic-title-input").val().trim();
       if (title.length < 1 || title.length > 100) {
         this.showErrorMessage("Invalid topic title");
@@ -56,6 +57,7 @@ var BebopNewTopic = Vue.component("bebop-new-topic", {
       this.posting = true;
       this.$http
         .post("api/v1/topics", {
+          category: categoryId,
           title: title,
           content: comment,
         })
