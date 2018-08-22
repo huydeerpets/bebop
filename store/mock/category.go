@@ -1,6 +1,6 @@
 package mock
 
-import "github.com/disintegration/bebop/store"
+import "github.com/huydeerpets/bebop/store"
 
 // CategoryStore is a mock implementation of store.CategoryStore.
 type CategoryStore struct {

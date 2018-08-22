@@ -9,9 +9,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/disintegration/bebop/jwt"
-	"github.com/disintegration/bebop/store"
-	"github.com/disintegration/bebop/store/mock"
+	"github.com/huydeerpets/bebop/jwt"
+	"github.com/huydeerpets/bebop/store"
+	"github.com/huydeerpets/bebop/store/mock"
 )
 
 func TestCurrentUser(t *testing.T) {

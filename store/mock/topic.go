@@ -1,7 +1,7 @@
 package mock
 
 import (
-	"github.com/disintegration/bebop/store"
+	"github.com/huydeerpets/bebop/store"
 )
 
 // TopicStore is a mock implementation of store.TopicStore.

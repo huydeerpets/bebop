@@ -3,7 +3,7 @@ package postgresql
 import (
 	"database/sql"
 
-	"github.com/disintegration/bebop/store"
+	"github.com/huydeerpets/bebop/store"
 )
 
 type categoryStore struct {

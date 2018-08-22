@@ -5,11 +5,11 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/disintegration/bebop/config"
-	"github.com/disintegration/bebop/filestorage"
-	"github.com/disintegration/bebop/store"
-	"github.com/disintegration/bebop/store/mysql"
-	"github.com/disintegration/bebop/store/postgresql"
+	"github.com/huydeerpets/bebop/config"
+	"github.com/huydeerpets/bebop/filestorage"
+	"github.com/huydeerpets/bebop/store"
+	"github.com/huydeerpets/bebop/store/mysql"
+	"github.com/huydeerpets/bebop/store/postgresql"
 )
 
 const configFile = "bebop.conf"

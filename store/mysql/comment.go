@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/disintegration/bebop/store"
+	"github.com/huydeerpets/bebop/store"
 )
 
 type commentStore struct {
