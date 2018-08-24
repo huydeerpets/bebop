@@ -1,5 +1,5 @@
 # letteravatar
-[![GoDoc](https://godoc.org/github.com/huydeerpets/letteravatar?status.svg)](https://godoc.org/github.com/huydeerpets/letteravatar)
+[![GoDoc](https://godoc.org/github.com/disintegration/letteravatar?status.svg)](https://godoc.org/github.com/disintegration/letteravatar)
 [![Build Status](https://travis-ci.org/disintegration/letteravatar.svg?branch=master)](https://travis-ci.org/disintegration/letteravatar)
 
 Letter avatar generation for Go.
@@ -37,7 +37,7 @@ img, err := letteravatar.Draw(100, 'A', &letteravatar.Options{
 
 ## Documentation
 
-[https://godoc.org/github.com/huydeerpets/letteravatar](https://godoc.org/github.com/huydeerpets/letteravatar)
+[https://godoc.org/github.com/disintegration/letteravatar](https://godoc.org/github.com/disintegration/letteravatar)
 
 ## Examples
 
@@ -62,7 +62,7 @@ import (
 	"os"
 	"unicode/utf8"
 
-	"github.com/huydeerpets/letteravatar"
+	"github.com/disintegration/letteravatar"
 )
 
 var names = []string{

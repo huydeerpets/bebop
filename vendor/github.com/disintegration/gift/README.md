@@ -1,6 +1,6 @@
 # GO IMAGE FILTERING TOOLKIT (GIFT)
 
-[![GoDoc](https://godoc.org/github.com/huydeerpets/gift?status.svg)](https://godoc.org/github.com/huydeerpets/gift)
+[![GoDoc](https://godoc.org/github.com/disintegration/gift?status.svg)](https://godoc.org/github.com/disintegration/gift)
 [![Build Status](https://travis-ci.org/disintegration/gift.svg?branch=master)](https://travis-ci.org/disintegration/gift)
 [![Coverage Status](https://coveralls.io/repos/github/disintegration/gift/badge.svg?branch=master)](https://coveralls.io/github/disintegration/gift?branch=master)
 
@@ -11,13 +11,13 @@ Pure Go. No external dependencies outside of the Go standard library.
 
 ### INSTALLATION / UPDATING
 
-    go get -u github.com/huydeerpets/gift
+    go get -u github.com/disintegration/gift
   
 
 
 ### DOCUMENTATION
 
-http://godoc.org/github.com/huydeerpets/gift
+http://godoc.org/github.com/disintegration/gift
   
 
 
@@ -167,7 +167,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/huydeerpets/gift"
+	"github.com/disintegration/gift"
 )
 
 func main() {
