@@ -44,11 +44,6 @@ func New(config *Config) *Handler {
 	h.router.Put("/users/{id}/name", h.handleSetUserName)
 	h.router.Put("/users/{id}/avatar", h.handleSetUserAvatar)
 	h.router.Put("/users/{id}/blocked", h.handleSetUserBlocked)
-	// Add Categories
-	h.router.Get("/categories", h.handleGetCategories)
-	h.router.Post("/categories", h.handleNewCategory)
-	h.router.Get("/categories/{id}", h.handleGetCategory)
-	h.router.Delete("/categories/{id}", h.handleDeleteCategory)
 
 	h.router.Get("/topics", h.handleGetTopics)
 	h.router.Post("/topics", h.handleNewTopic)

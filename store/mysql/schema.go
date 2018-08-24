@@ -11,34 +11,22 @@ var migrate = []string{
 			blocked       boolean           not null default false,
 			admin         boolean           not null default false,
 			avatar        varchar(50)       not null default '',
+
 			primary key (id),
 			unique index (name),
 			unique index (auth_service, auth_id)
 		) default charset = utf8mb4;
 	`,
 	`
-		create table if not exists categories (
-			id               bigint        not null auto_increment,
-			author_id        bigint        not null references users(id),
-			title            varchar(200)  not null,
-			created_at       datetime(6)   not null,
-			last_topic_at    datetime(6)   not null,
-			deleted          boolean       not null default false,
-			topic_count      int           not null default 0,
-			primary key (id),
-			index (last_topic_at)
-		) default charset = utf8mb4;
-	`,
-	`
 		create table if not exists topics (
 			id               bigint        not null auto_increment,
-			category_id      bigint        not null references categories(id),
 			author_id        bigint        not null references users(id),
 			title            varchar(200)  not null,
 			created_at       datetime(6)   not null,
 			last_comment_at  datetime(6)   not null,
 			deleted          boolean       not null default false,
 			comment_count    int           not null default 0,
+
 			primary key (id),
 			index (last_comment_at)
 		) default charset = utf8mb4;
@@ -51,6 +39,7 @@ var migrate = []string{
 			content     text         not null,
 			created_at  datetime(6)  not null,
 			deleted     boolean      not null default false,
+
 			primary key (id),
 			index (topic_id),
 			index (created_at)
@@ -60,7 +49,6 @@ var migrate = []string{
 
 var drop = []string{
 	`drop table if exists users cascade`,
-	`drop table if exists categories cascade`,
 	`drop table if exists topics cascade`,
 	`drop table if exists comments cascade`,
 }

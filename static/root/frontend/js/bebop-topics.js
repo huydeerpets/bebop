@@ -3,6 +3,7 @@ const TOPICS_PER_PAGE = 20;
 var BebopTopics = Vue.component("bebop-topics", {
   template: `
     <div class="container content-container">
+
       <div v-if="!dataReady" class="loading-info">
         <div v-if="error" >
           <p class="text-danger">
@@ -17,15 +18,16 @@ var BebopTopics = Vue.component("bebop-topics", {
         </div>
       </div>
       <div v-else>
+
         <div class="topics-topic-top-buttons">
-          <router-link v-if="auth.authenticated" :to="'/new-topic/' + categoryId" class="btn btn-primary btn-sm">
+          <router-link v-if="auth.authenticated" to="/new-topic" class="btn btn-primary btn-sm">
             <i class="fa fa-plus"></i> New Topic
           </router-link>
           <a class="btn btn-primary btn-sm" role="button" @click="load">
             <i class="fa fa-refresh"></i> Refresh
           </a>
         </div>
-        <h2 class="topics-category-title">Topics in "{{category.title}}"</h2>
+
         <nav v-if="page > 1">
           <ul class="pagination pagination-sm">
             <li v-for="p in pagination" :class="{active: page === p}">
@@ -34,6 +36,7 @@ var BebopTopics = Vue.component("bebop-topics", {
             </li>
           </ul>
         </nav>
+
         <div v-for="topic in topics" class="card topics-topic">
           <div class="avatar-block">
             <div class="avatar-block-l">
@@ -59,6 +62,7 @@ var BebopTopics = Vue.component("bebop-topics", {
             </div>
           </div>
         </div>
+
         <nav v-if="lastPage > 1">
           <ul class="pagination pagination-sm">
             <li v-for="p in pagination" :class="{active: page === p}">
@@ -67,7 +71,9 @@ var BebopTopics = Vue.component("bebop-topics", {
             </li>
           </ul>
         </nav>
+
       </div>
+
     </div>
   `,
 
@@ -75,8 +81,6 @@ var BebopTopics = Vue.component("bebop-topics", {
 
   data: function() {
     return {
-      category: [],
-      categoryReady: false,
       topics: [],
       topicsReady: false,
       topicCount: 0,
@@ -88,16 +92,8 @@ var BebopTopics = Vue.component("bebop-topics", {
 
   computed: {
     dataReady: function() {
-      return this.categoryReady && this.topicsReady && this.usersReady;
+      return this.topicsReady && this.usersReady;
     },
-
-    categoryId: function() {
-		var categoryId = parseInt(this.$route.params.category, 10);
-		if (!categoryId) {
-			return 0;
-		}
-		return categoryId;
-	},
 
     page: function() {
       var page = parseInt(this.$route.params.page, 10);
@@ -130,9 +126,6 @@ var BebopTopics = Vue.component("bebop-topics", {
     page: function(val) {
       this.load();
     },
-	categoryId: function(val) {
-	  this.load();
-	},
   },
 
   created: function() {
@@ -141,35 +134,17 @@ var BebopTopics = Vue.component("bebop-topics", {
 
   methods: {
     load: function() {
-      this.category = {};
-      this.categoryReady = false;
       this.topics = [];
       this.topicsReady = false;
       this.topicCount = 0;
       this.users = {};
       this.usersReady = false;
       this.error = false;
-      this.getCategory();
       this.getTopics();
     },
 
-    getCategory: function() {
-	  var url = "api/v1/categories/"+this.categoryId;
-      this.$http.get(url).then(
-        response => {
-          this.category = response.body.category;
-          this.categoryReady = true;
-        },
-        response => {
-          this.error = true;
-          console.log("ERROR: getCategory: " + JSON.stringify(response.body));
-        }
-      );
- 
-    },
-
     getTopics: function() {
-      var url = "api/v1/topics?category="+this.categoryId+"&limit=" + TOPICS_PER_PAGE;
+      var url = "api/v1/topics?limit=" + TOPICS_PER_PAGE;
       if (this.page > 1) {
         var offset = (this.page - 1) * TOPICS_PER_PAGE;
         url += "&offset=" + offset;

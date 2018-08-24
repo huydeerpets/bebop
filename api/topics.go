@@ -10,25 +10,6 @@ import (
 func (h *Handler) handleGetTopics(w http.ResponseWriter, r *http.Request) {
 	var err error
 
-	var category int64
-	if v := r.URL.Query().Get("category"); v != "" {
-		category, err = strconv.ParseInt(v, 10, 64)
-		if err != nil || category < 1 {
-			h.renderError(w, http.StatusBadRequest, "BadRequest", "Invalid category ID")
-			return
-		}
-		_, err = h.Store.Categories().Get(category)
-		if err != nil {
-			if err == store.ErrNotFound {
-				h.renderError(w, http.StatusNotFound, "NotFound", "Category not found")
-				return
-			}
-			h.logError("get category: %s", err)
-			h.renderError(w, http.StatusInternalServerError, "ServerError", "Server error")
-			return
-		}
-	}
-
 	offset := 0
 	offsetParam := r.URL.Query().Get("offset")
 	if offsetParam != "" {
@@ -52,7 +33,7 @@ func (h *Handler) handleGetTopics(w http.ResponseWriter, r *http.Request) {
 	var topics []*store.Topic
 	var count int
 
-	topics, count, err = h.Store.Topics().GetByCategory(category, offset, limit)
+	topics, count, err = h.Store.Topics().GetLatest(offset, limit)
 	if err != nil {
 		h.logError("get all topics: %s", err)
 		h.renderError(w, http.StatusInternalServerError, "ServerError", "Server error")
@@ -84,19 +65,13 @@ func (h *Handler) handleNewTopic(w http.ResponseWriter, r *http.Request) {
 	}
 
 	req := struct {
-		Category *int64  `json:"category"`
-		Title    *string `json:"title"`
-		Content  *string `json:"content"`
+		Title   *string `json:"title"`
+		Content *string `json:"content"`
 	}{}
 
 	err := h.parseRequest(r, &req)
 	if err != nil {
 		h.renderError(w, http.StatusBadRequest, "BadRequest", "Invalid request body")
-		return
-	}
-
-	if req.Category == nil || *req.Category <= 0 {
-		h.renderError(w, http.StatusBadRequest, "BadRequest", "Invalid category")
 		return
 	}
 
@@ -110,7 +85,7 @@ func (h *Handler) handleNewTopic(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := h.Store.Topics().New(*req.Category, currentUser.ID, *req.Title)
+	id, err := h.Store.Topics().New(currentUser.ID, *req.Title)
 	if err != nil {
 		h.logError("create topic: %s", err)
 		h.renderError(w, http.StatusInternalServerError, "ServerError", "Server error")

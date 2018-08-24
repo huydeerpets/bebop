@@ -14,14 +14,14 @@
   version = "v1.10.3"
 
 [[projects]]
-  name = "github.com/disintegration/gift"
+  name = "github.com/huydeerpets/gift"
   packages = ["."]
   revision = "7230b78288726ee18f3b4d38b52201510cd92d50"
   version = "v1.0.0"
 
 [[projects]]
   branch = "master"
-  name = "github.com/disintegration/letteravatar"
+  name = "github.com/huydeerpets/letteravatar"
   packages = ["."]
   revision = "1a457b860450eb157f092fdc511993cfa621cc37"
 

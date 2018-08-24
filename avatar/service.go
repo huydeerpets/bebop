@@ -18,8 +18,8 @@ import (
 	_ "golang.org/x/image/tiff"
 	_ "golang.org/x/image/webp"
 
-	"github.com/disintegration/gift"
-	"github.com/disintegration/letteravatar"
+	"github.com/huydeerpets/gift"
+	"github.com/huydeerpets/letteravatar"
 	"github.com/rwcarlsen/goexif/exif"
 	"github.com/satori/go.uuid"
 

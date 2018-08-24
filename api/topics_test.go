@@ -23,30 +23,12 @@ func TestHandleGetTopics(t *testing.T) {
 	apiHandler := New(&Config{
 		Logger: log.New(ioutil.Discard, "", 0),
 		Store: &mock.Store{
-			CategoryStore: &mock.CategoryStore{
-				OnGet: func(id int64) (*store.Category, error) {
-					switch id {
-					case 1:
-						return &store.Category{
-							ID:          1,
-							AuthorID:    1,
-							Title:       "Category1",
-							CreatedAt:   testTime,
-							LastTopicAt: testTime,
-							TopicCount:  2,
-						}, nil
-					}
-					t.Fatalf("OnGet: unexpected params (unknown test)")
-					return nil, nil
-				},
-			},
 			TopicStore: &mock.TopicStore{
-				OnGetByCategory: func(id int64, offset, limit int) ([]*store.Topic, int, error) {
+				OnGetLatest: func(offset, limit int) ([]*store.Topic, int, error) {
 					if offset == 0 {
 						return []*store.Topic{
 							{
 								ID:            1,
-								CategoryID:    id,
 								AuthorID:      1,
 								Title:         "Topic1",
 								CreatedAt:     testTime,
@@ -55,7 +37,6 @@ func TestHandleGetTopics(t *testing.T) {
 							},
 							{
 								ID:            2,
-								CategoryID:    id,
 								AuthorID:      2,
 								Title:         "Topic2",
 								CreatedAt:     testTime,
@@ -84,14 +65,14 @@ func TestHandleGetTopics(t *testing.T) {
 		{
 			desc:     "no offset",
 			wantCode: http.StatusOK,
-			wantBody: `{"topics":[{"id":1,"categoryId":1,"authorId":1,"title":"Topic1","createdAt":"2001-02-03T04:05:06Z","lastCommentAt":"2001-02-03T04:05:06Z","commentCount":10},{"id":2,"categoryId":1,"authorId":2,"title":"Topic2","createdAt":"2001-02-03T04:05:06Z","lastCommentAt":"2001-02-03T04:05:06Z","commentCount":20}],"count":2}`,
+			wantBody: `{"topics":[{"id":1,"authorId":1,"title":"Topic1","createdAt":"2001-02-03T04:05:06Z","lastCommentAt":"2001-02-03T04:05:06Z","commentCount":10},{"id":2,"authorId":2,"title":"Topic2","createdAt":"2001-02-03T04:05:06Z","lastCommentAt":"2001-02-03T04:05:06Z","commentCount":20}],"count":2}`,
 		},
 		{
 			desc:     "offset 0",
 			offset:   "0",
 			limit:    "100",
 			wantCode: http.StatusOK,
-			wantBody: `{"topics":[{"id":1,"categoryId":1,"authorId":1,"title":"Topic1","createdAt":"2001-02-03T04:05:06Z","lastCommentAt":"2001-02-03T04:05:06Z","commentCount":10},{"id":2,"categoryId":1,"authorId":2,"title":"Topic2","createdAt":"2001-02-03T04:05:06Z","lastCommentAt":"2001-02-03T04:05:06Z","commentCount":20}],"count":2}`,
+			wantBody: `{"topics":[{"id":1,"authorId":1,"title":"Topic1","createdAt":"2001-02-03T04:05:06Z","lastCommentAt":"2001-02-03T04:05:06Z","commentCount":10},{"id":2,"authorId":2,"title":"Topic2","createdAt":"2001-02-03T04:05:06Z","lastCommentAt":"2001-02-03T04:05:06Z","commentCount":20}],"count":2}`,
 		},
 		{
 			desc:     "offset 100",
@@ -115,7 +96,7 @@ func TestHandleGetTopics(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		url := "/topics?category=1"
+		url := "/topics?"
 		if tc.offset != "" {
 			url += "&offset=" + tc.offset
 		}
@@ -210,9 +191,9 @@ func TestHandleNewTopic(t *testing.T) {
 				},
 			},
 			TopicStore: &mock.TopicStore{
-				OnNew: func(category, authorID int64, title string) (int64, error) {
-					if category != 1 || authorID != 1 || title != "Topic1" {
-						t.Fatalf("TopicStore.OnNew: unexpected params: %d, %d, %q", category, authorID, title)
+				OnNew: func(authorID int64, title string) (int64, error) {
+					if authorID != 1 || title != "Topic1" {
+						t.Fatalf("TopicStore.OnNew: unexpected params: %d, %q", authorID, title)
 					}
 					return 11, nil
 				},
@@ -239,51 +220,37 @@ func TestHandleNewTopic(t *testing.T) {
 		{
 			desc:     "no token",
 			token:    "",
-			body:     `{"category":1, "title":"Topic1","content":"Comment1"}`,
+			body:     `{"title":"Topic1","content":"Comment1"}`,
 			wantCode: http.StatusUnauthorized,
 			wantBody: `{"error":{"code":"Unauthorized","message":"Authentication required"}}`,
 		},
 		{
 			desc:     "blocked user token",
-			body:     `{"category":1, "title":"Topic1","content":"Comment1"}`,
+			body:     `{"title":"Topic1","content":"Comment1"}`,
 			token:    token2,
 			wantCode: http.StatusUnauthorized,
 			wantBody: `{"error":{"code":"Unauthorized","message":"Authentication required"}}`,
 		},
 		{
 			desc:     "unactivated user token",
-			body:     `{"category":1, "title":"Topic1","content":"Comment1"}`,
+			body:     `{"title":"Topic1","content":"Comment1"}`,
 			token:    token3,
 			wantCode: http.StatusForbidden,
 			wantBody: `{"error":{"code":"Forbidden","message":"User name is empty"}}`,
 		},
 		{
 			desc:     "not found user token",
-			body:     `{"category":1, "title":"Topic1","content":"Comment1"}`,
+			body:     `{"title":"Topic1","content":"Comment1"}`,
 			token:    token100,
 			wantCode: http.StatusUnauthorized,
 			wantBody: `{"error":{"code":"Unauthorized","message":"Authentication required"}}`,
 		},
 		{
 			desc:     "good token",
-			body:     `{"category":1, "title":"Topic1","content":"Comment1"}`,
+			body:     `{"title":"Topic1","content":"Comment1"}`,
 			token:    token1,
 			wantCode: http.StatusCreated,
 			wantBody: `{"id":11,"commentId":12}`,
-		},
-		{
-			desc:     "no category",
-			body:     `{"title":"Topic1","content":"Comment1"}`,
-			token:    token1,
-			wantCode: http.StatusBadRequest,
-			wantBody: `{"error":{"code":"BadRequest","message":"Invalid category"}}`,
-		},
-		{
-			desc:     "invalid category",
-			body:     `{"category": -1, "title":"Topic1","content":"Comment1"}`,
-			token:    token1,
-			wantCode: http.StatusBadRequest,
-			wantBody: `{"error":{"code":"BadRequest","message":"Invalid category"}}`,
 		},
 		{
 			desc:     "bad request body",
@@ -294,28 +261,28 @@ func TestHandleNewTopic(t *testing.T) {
 		},
 		{
 			desc:     "empty title",
-			body:     `{"category":1, "title":"","content":"Comment1"}`,
+			body:     `{"title":"","content":"Comment1"}`,
 			token:    token1,
 			wantCode: http.StatusBadRequest,
 			wantBody: `{"error":{"code":"BadRequest","message":"Invalid topic title"}}`,
 		},
 		{
 			desc:     "large title",
-			body:     `{"category":1, "title":"` + strings.Repeat("X", 101) + `","content":"Comment1"}`,
+			body:     `{"title":"` + strings.Repeat("X", 101) + `","content":"Comment1"}`,
 			token:    token1,
 			wantCode: http.StatusBadRequest,
 			wantBody: `{"error":{"code":"BadRequest","message":"Invalid topic title"}}`,
 		},
 		{
 			desc:     "empty content",
-			body:     `{"category":1, "title":"Topic1","content":""}`,
+			body:     `{"title":"Topic1","content":""}`,
 			token:    token1,
 			wantCode: http.StatusBadRequest,
 			wantBody: `{"error":{"code":"BadRequest","message":"Invalid comment content"}}`,
 		},
 		{
 			desc:     "large content",
-			body:     `{"category":1, "title":"Topic1","content":"` + strings.Repeat("X", 10001) + `"}`,
+			body:     `{"title":"Topic1","content":"` + strings.Repeat("X", 10001) + `"}`,
 			token:    token1,
 			wantCode: http.StatusBadRequest,
 			wantBody: `{"error":{"code":"BadRequest","message":"Invalid comment content"}}`,
@@ -359,7 +326,6 @@ func TestHandleGetTopic(t *testing.T) {
 					case 1:
 						return &store.Topic{
 							ID:            1,
-							CategoryID:    1,
 							AuthorID:      1,
 							Title:         "Topic1",
 							CreatedAt:     testTime,
@@ -383,7 +349,7 @@ func TestHandleGetTopic(t *testing.T) {
 			desc:     "found",
 			id:       "1",
 			wantCode: http.StatusOK,
-			wantBody: `{"topic":{"id":1,"categoryId":1,"authorId":1,"title":"Topic1","createdAt":"2001-02-03T04:05:06Z","lastCommentAt":"2001-02-03T04:05:06Z","commentCount":10}}`,
+			wantBody: `{"topic":{"id":1,"authorId":1,"title":"Topic1","createdAt":"2001-02-03T04:05:06Z","lastCommentAt":"2001-02-03T04:05:06Z","commentCount":10}}`,
 		},
 		{
 			desc:     "not found",
